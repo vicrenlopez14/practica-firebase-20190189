@@ -2,6 +2,7 @@ import {API_KEY, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, A
 
 // Import the functions you need from the SDKs you need
 import {FirebaseApp, initializeApp} from "firebase/app";
+import { getAuth } from 'firebase/auth';
 import {getFirestore} from 'firebase/firestore';
 import {getStorage} from 'firebase/storage';
 // TODO: Add SDKs for Firebase products that you want to use
@@ -42,4 +43,11 @@ if (storage) {
     console.log('storage initialization failed');
 }
 
-export {database, storage};
+const authentication = getAuth(app);
+if (authentication) {
+    console.log('Authentication initialized correctly');
+} else {
+    console.log('Authentication initialization failed');
+}
+
+export {database, storage, authentication};
