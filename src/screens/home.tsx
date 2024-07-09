@@ -1,15 +1,21 @@
 // Importación de bibliotecas y componentes necesarios
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
-import { database } from '../config/firebase'; // Importa la configuración de la base de datos de Firebase
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore'; // Importa funciones de Firestore para consultas en tiempo real
+import React, {useState, useEffect} from 'react';
+import {View, Text, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator} from 'react-native';
+import {authentication, database} from '../config/firebase'; // Importa la configuración de la base de datos de Firebase
+import {collection, onSnapshot, orderBy, query} from 'firebase/firestore'; // Importa funciones de Firestore para consultas en tiempo real
 import CartProductos from "../components/cart-productos";
 import CardProductos from "../components/cart-productos";
+import {useAuth} from "../context/AuthContext";
+import {Button} from "react-native-paper";
+import {signOut} from 'firebase/auth'
+
 
 // Definición del componente principal Home
-const Home = ({ navigation }) => {
+const Home = ({navigation}) => {
     // Definición del estado local para almacenar los productos
+    const [loading, setLoading] = useState(false); // Estado de carga inicial [true
     const [productos, setProductos] = useState([]);
+    const {loggedInUser, setLoggedInUser } = useAuth()
 
     // useEffect se ejecuta cuando el componente se monta
     useEffect(() => {
@@ -21,7 +27,7 @@ const Home = ({ navigation }) => {
             const docs = [];
             querySnapshot.forEach((doc) => {
                 // Empuja cada documento con su ID a la lista de docs
-                docs.push({ id: doc.id, ...doc.data() });
+                docs.push({id: doc.id, ...doc.data()});
             });
             // Actualiza el estado de productos con los datos recibidos
             setProductos(docs);
@@ -37,7 +43,7 @@ const Home = ({ navigation }) => {
     }
 
     // Función que renderiza cada item de la lista
-    const renderItem = ({ item }) => (
+    const renderItem = ({item}) => (
         <CardProductos
             id={item.id}
             nombre={item.nombre}
@@ -47,9 +53,52 @@ const Home = ({ navigation }) => {
         />
     );
 
+    const handleLogout = () => {
+        setLoading(true)
+        // Cerrar sesión
+        signOut(authentication).then(() => {
+            console.log("Sesión cerrada");
+            setLoggedInUser(null)
+        }).then(() => {
+            navigation.reset({
+                index: 0,
+                routes: [{name: 'Login'}],
+            });
+        }).catch((error) => {
+            console.log(error);
+        }).finally(() => {
+            setLoading(false)
+        })
+    }
+
     // Renderiza la interfaz del componente Home
     return (
         <View style={styles.container}>
+            <Text style={{
+                fontSize: 20,
+                fontWeight: 'bold',
+                textAlign: 'center',
+                marginBottom: 20,
+                color: '#ff9800'
+            }}>Bienvenido {loggedInUser?.email}</Text>
+            <Button onPress={() => {
+                handleLogout()
+            }} mode={"contained"}>Cerrar sesión
+                {loading && (
+                    <ActivityIndicator
+                        size="small"
+                        color="white"
+                        style={{
+                            alignSelf: "center",
+                            justifyContent: "center",
+                            paddingLeft: 10,
+                        }}
+                    />
+                )}</Button>
+            <View style={{
+                height: "10%",
+            }}></View>
+
             <Text style={styles.title}>Productos Disponibles</Text>
 
             {/* Muestra la lista de productos si hay elementos, de lo contrario muestra un mensaje */}
@@ -98,7 +147,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 10,
-        color:'#ff9800'
+        color: '#ff9800'
     },
     Button: {
         backgroundColor: '#0288d1',

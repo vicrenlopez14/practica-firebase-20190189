@@ -15,13 +15,21 @@ const RegisterScreen = ({navigation}: {navigation:any}) => {
     // If already logged in, redirect to Home
     useEffect(() => {
         if (loggedInUser) {
-            navigation.navigate('Home');
+            // navigation.navigate('Home');
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+            });
         }
     }, [loggedInUser])
 
     useEffect(() => {
         if (loggedInUser) {
-            navigation.navigate('Home');
+            // navigation.navigate('Home');
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+            });
         }
     }, [])
 
@@ -31,8 +39,12 @@ const RegisterScreen = ({navigation}: {navigation:any}) => {
         createUserWithEmailAndPassword(authentication, email, password)
             .then((res) => {
                 console.log("successful");
-                navigation.navigate('Home');
+                // navigation.navigate('Home');
                 setLoggedInUser(res.user);
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Home' }],
+                });
             })
 
             .catch((err) => {
@@ -59,7 +71,7 @@ const RegisterScreen = ({navigation}: {navigation:any}) => {
                     textAlign: 'center',
                     fontWeight: 'bold'
                 }}>
-                    Pŕactica Firebase
+                    Práctica Firebase
                 </Text>
                 <Text style={{
                     fontSize: 16,
